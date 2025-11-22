@@ -86,6 +86,8 @@
         const EyeIcon = (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>;
         const MicroscopeIcon = (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></svg>;
 
+        // --- CONFIGURATION: IMAGE MAPPING ---
+        // Ensure these files exist in your github images/ folder!
         const IMAGE_FILES = {
              "img1": "images/retinal_process", 
              "img2": "images/image2",          
@@ -98,6 +100,14 @@
              "img9": "images/image_ef1d67",    
              "img10": "images/image_ef1d9d",   
              "img11": "images/image_ef1dc3",   
+             // NEW IMAGES (Upload these!)
+             "img12": "images/image12",
+             "img13": "images/image13",
+             "img15": "images/image15",
+             "img16": "images/image16",
+             "img17": "images/image17",
+             "img18": "images/image18",
+             "img19": "images/image19"
         };
 
         const SCHOOL_LOGO_URL = "https://drive.google.com/thumbnail?id=1jYLfquEgDLIBk3aT4h11DRIeQ5EszAPK";
@@ -291,11 +301,13 @@
 
                     {condition === 'retinal' && (
                     <>
-                        <div className="absolute -top-10 -right-10 w-[150%] h-[150%] bg-black rounded-[100%] opacity-90 animate-curtain pointer-events-none" style={{ transformOrigin: 'top right' }} />
+                        {/* Enhanced Curtain Effect */}
+                        <div 
+                            className="absolute w-[200%] h-[200%] bg-black opacity-90 animate-curtain pointer-events-none" 
+                            style={{ clipPath: 'polygon(100% 0, 100% 100%, 40% 100%, 0 60%, 0 0)', top: '-50%', right: '-50%' }} 
+                        />
                         <div className="absolute top-10 left-10 w-3 h-3 bg-white blur-sm rounded-full animate-flash" style={{ animationDelay: '0s' }} />
                         <div className="absolute top-1/2 right-1/3 w-2 h-2 bg-white blur-md rounded-full animate-flash" style={{ animationDelay: '2.3s' }} />
-                        <div className="absolute top-1/4 right-1/4 w-1 h-1 bg-black rounded-full opacity-60 animate-float" />
-                        <div className="absolute bottom-1/3 left-1/3 w-1.5 h-1.5 bg-black rounded-full opacity-50 animate-float" style={{ animationDelay: '1s' }} />
                     </>
                     )}
 
@@ -335,7 +347,7 @@
         const POPUP_CONTENT = {
             'cataract-lens': { 
                 title: 'Pathology: The Crystalline Lens', 
-                content: <> <p className="mb-4">Normally clear and flexible. In <strong>Cataracts</strong>, proteins clump creating cloudiness.</p><div className="h-48 w-full"><DiagramPlaceholder id="img7" label="Clouding Process Diagram" /></div> </> 
+                content: <> <p className="mb-4">Normally clear and flexible. In <strong>Cataracts</strong>, proteins clump creating cloudiness.</p><div className="h-48 w-full"><DiagramPlaceholder id="img6" label="Eye Anatomy" /></div> </> 
             },
             'retinal-detached-retina': { 
                 title: 'Pathology: Retinal Detachment', 
@@ -347,7 +359,7 @@
             },
             'color_retina': { 
                 title: 'Pathology: Rod & Cone Cells', 
-                content: <> <p className="mb-4">Cone cells in the retina are responsible for color vision. <strong>Color Blindness</strong> involves a deficiency in Red, Green, or Blue cones.</p><div className="h-48 w-full"><DiagramPlaceholder id="img11" label="Visual Pathway Diagram" /></div> </> 
+                content: <> <p className="mb-4">Cone cells in the retina are responsible for color vision. <strong>Color Blindness</strong> involves a deficiency in Red, Green, or Blue cones.</p><div className="h-48 w-full"><DiagramPlaceholder id="img7" label="Visual Pathway Diagram" /></div> </> 
             }
         };
 
@@ -384,7 +396,7 @@
                         <VisionSimulator condition={condition} />
                         <div className="bg-white p-3 rounded-lg border border-slate-200 text-xs text-slate-600 overflow-y-auto shadow-sm">
                             <strong>Visual Effects:</strong>
-                            {condition === 'retinal' && " Flashes of light, black spots (floaters), curtain-like shadow."}
+                            {condition === 'retinal' && " Flashes of light, black spots (floaters), large curtain shadow."}
                             {condition === 'amd' && " Wavy lines, central black spot, loss of fine detail."}
                             {condition === 'cataract' && " Blurry vision, faded colors, glare from lights."}
                             {condition === 'colorblind' && " Difficulty distinguishing red/green or blue/yellow colors."}
@@ -403,9 +415,11 @@
                     {signs.map((s, i) => (
                         <div key={i} className="flex flex-col items-center text-center gap-2">
                             <div className="text-xs md:text-sm font-bold text-red-900">{s.label}</div>
-                            <div className="w-full h-32">
-                                <DiagramPlaceholder id={s.imageId} label="Reference" />
-                            </div>
+                            {s.imageId && (
+                                <div className="w-full h-32">
+                                    <DiagramPlaceholder id={s.imageId} label="Reference" />
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -430,13 +444,17 @@
             <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 h-full flex flex-col mb-8">
                 <h3 className="font-bold text-xl text-slate-800 mb-4 flex items-center gap-2"><MicroscopeIcon size={24} className="text-purple-500"/> Pathology Mechanism</h3>
                 <div className="flex-1 grid md:grid-cols-2 gap-8">
-                    <div className="flex flex-col justify-center">
-                        <p className="text-base text-slate-600 leading-relaxed">{text}</p>
+                    <div className="flex flex-col justify-start">
+                        <p className="text-base text-slate-600 leading-relaxed mb-4">{text}</p>
+                        {/* Specific check to render image12 for AMD adjacent to text */}
+                        {title.includes("AMD") && extraImages && extraImages.find(img => img.id === 'img12') && (
+                             <div className="h-48 mt-2"><DiagramPlaceholder id="img12" label="Visual Adjunct" /></div>
+                        )}
                     </div>
                     <div className="grid gap-4">
                         {imageId && <div className="h-48"><DiagramPlaceholder id={imageId} label={title} /></div>}
                         {extraImages && extraImages.map((img, idx) => (
-                            <div key={idx} className="h-48"><DiagramPlaceholder id={img.id} label={img.label} /></div>
+                            img.id !== 'img12' && <div key={idx} className="h-48"><DiagramPlaceholder id={img.id} label={img.label} /></div>
                         ))}
                     </div>
                 </div>
@@ -500,31 +518,31 @@
                         icon: LayersIcon,
                         pathologyText: "Detachment of the light-sensitive tissues on the retina from the eyeball. Cells on the detached retina cannot receive a sufficient blood supply, leading to insufficient nutrients and cell death if without prompt surgical treatments.",
                         pathologyImgs: [{id: "img1", label: "Detachment Process"}],
-                        warningSigns: [{label: "Sudden flashes", imageId: "img2"}, {label: "Dark shadow", imageId: "img2"}],
+                        warningSigns: [{label: "Sudden flashes", imageId: null}, {label: "Dark shadow", imageId: null}], // Removed images per request
                         causes: ["Trauma / Eye Injury", "High Myopia (Nearsightedness)", "Aging (Posterior Vitreous Detachment)", "Family History"]
                     },
                     amd: {
                         title: "Age-related Macular Degeneration",
                         icon: GridIcon,
                         pathologyText: "Damage to the macula (central retina) causing central vision loss. Drusen (yellow deposits) or abnormal blood vessels form beneath the retina.",
-                        pathologyImgs: [{id: "img3", label: "Normal Fundus"}, {id: "img4", label: "AMD Fundus"}],
-                        warningSigns: [{label: "Central vision loss", imageId: "img5"}, {label: "Straight lines become blurry (wavy)", imageId: "img5"}],
+                        pathologyImgs: [{id: "img11", label: "Drusen Formation"}, {id: "img13", label: "Macular Degeneration"}, {id: "img12", label: "Adjunct"}], // 12 is handled specially
+                        warningSigns: [{label: "Central vision loss / Wavy lines", imageId: "img11"}], // Only image11
                         causes: ["Aging (over 50)", "Smoking", "Genetics / Family History", "Obesity & High Blood Pressure", "UV Exposure"]
                     },
                     cataract: {
                         title: "Cataract",
                         icon: SunIcon,
                         pathologyText: "The Commonest cause of blindness in the world. The Crystalline lens becomes opaque (cloudiness / white), meaning light rays cannot enter the lens effectively.",
-                        pathologyImgs: [{id: "img6", label: "Eye Anatomy"}, {id: "img7", label: "Clouding Process"}],
-                        warningSigns: [{label: "Blurry vision", imageId: "img8"}, {label: "Dimmer colour sensation", imageId: "img8"}, {label: "Hypersensitivity to strong light", imageId: "img8"}],
+                        pathologyImgs: [{id: "img5", label: "Anatomy"}, {id: "img15", label: "Clouding"}],
+                        warningSigns: [{label: "Blurry vision", imageId: "img16"}, {label: "Dimmer/Yellow vision", imageId: "img10"}],
                         causes: ["Aging", "Diabetes", "Excessive UV sunlight exposure", "Smoking", "Trauma", "Prolonged steroid use"]
                     },
                     colorblind: {
                         title: "Color Blindness",
                         icon: ApertureIcon,
                         pathologyText: "Red-Green Color Blindness (Protanopia/Deuteranopia): Red/Green cones absent. Blue-Yellow (Tritanopia): Blue cones absent. Monochromacy: Absent/nonfunctioning cones.",
-                        pathologyImgs: [{id: "img11", label: "Visual Pathway"}],
-                        warningSigns: [{label: "Difficulty distinguishing colors", imageId: "img9"}, {label: "Ishihara Test Failure", imageId: "img10"}],
+                        pathologyImgs: [{id: "img17", label: "Cone Cells"}, {id: "img18", label: "Genetics"}],
+                        warningSigns: [{label: "Difficulty distinguishing colors", imageId: "img8"}, {label: "Ishihara Test Failure", imageId: "img19"}],
                         causes: ["Genetic problems", "Eye injury", "Injury of visual pathway", "Injury of optical nerve"]
                     }
                 };
