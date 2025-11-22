@@ -27,6 +27,10 @@
         @keyframes curtain-creep { from { transform: translateY(-100%) translateX(50%) rotate(45deg); } to { transform: translateY(-60%) translateX(30%) rotate(30deg); } }
         
         /* Interaction Cues */
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 2px rgba(59, 130, 246, 0.5)); stroke-width: 2px; }
+            50% { filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.8)); stroke-width: 3px; }
+        }
         @keyframes ring-pulse {
             0% { transform: scale(0.8); opacity: 0.8; stroke-width: 2px; }
             100% { transform: scale(2); opacity: 0; stroke-width: 0px; }
@@ -39,6 +43,7 @@
         .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
         .animate-slide-in { animation: slide-in-bottom 0.5s ease-out forwards; }
         .animate-pulse-slow { animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        .animate-glow { animation: glow 2.5s ease-in-out infinite; }
         .animate-flash { animation: flash 4s infinite; }
         .animate-curtain { animation: curtain-creep 2s ease-out forwards; }
         .animate-ring-pulse { animation: ring-pulse 2s cubic-bezier(0, 0, 0.2, 1) infinite; }
@@ -81,8 +86,6 @@
         const EyeIcon = (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>;
         const MicroscopeIcon = (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></svg>;
 
-        // --- CONFIGURATION: IMAGE MAPPING ---
-        // Auto-resolving .png/.jpg in DiagramPlaceholder
         const IMAGE_FILES = {
              "img1": "images/retinal_process", 
              "img2": "images/image2",          
@@ -144,17 +147,18 @@
             const isHome = condition === 'home';
             const [hoveredPart, setHoveredPart] = useState(null);
 
-            // UPDATED COORDINATES
-            // Retinal Detachment: Lower Right Flap ~ (190, 200)
-            // Color Blindness: Upper Back Retina ~ (200, 60)
+            // Fixed Coordinates for SVG 300x300
+            // Retinal Detachment: Lower Right Flap area ~ (220, 220)
+            // Color Blindness: Upper Back Retina ~ (220, 100)
             // AMD: Macula ~ (255, 150)
             // Cataract: Lens ~ (90, 150)
 
             const getPartClass = (partName) => {
                 if (!isHome) {
                     if ((partName === 'lens' && condition === 'cataract') ||
-                        (partName === 'retina' && (condition === 'colorblind' || condition === 'retinal')) ||
-                        (partName === 'macula' && condition === 'amd')) {
+                        (partName === 'retina' && condition === 'retinal') ||
+                        (partName === 'macula' && condition === 'amd') ||
+                        (partName === 'color_retina' && condition === 'colorblind')) {
                         return 'cursor-pointer filter drop-shadow-[0_0_5px_rgba(59,130,246,0.8)]';
                     }
                     if (partName === 'lens') return 'opacity-60';
@@ -170,7 +174,8 @@
 
             return (
                 <div className="relative w-full h-full mx-auto flex items-center justify-center">
-                <svg viewBox="0 0 300 300" className={`w-full h-full drop-shadow-md ${isHome ? 'max-w-md' : ''}`}>
+                {/* 20% LESS Height Constraint (approx 200px is nice middle ground, orig was 250) */}
+                <svg viewBox="0 0 300 300" className={`w-full h-full drop-shadow-md ${isHome ? 'max-w-md' : 'max-h-[200px]'}`}>
                     <defs>
                         <radialGradient id="eyeballGrad" cx="50%" cy="50%" r="50%">
                             <stop offset="80%" stopColor="#fff" />
@@ -243,20 +248,20 @@
                     <path d="M 60 110 C 20 110, 20 190, 60 190" fill="none" stroke="#94a3b8" strokeWidth="2" className="opacity-30 pointer-events-none" />
                     <path d="M 60 110 C 30 120, 30 180, 60 190" fill="#eff6ff" fillOpacity="0.5" className="pointer-events-none" />
 
-                    {/* Corrected Target Indicators */}
+                    {/* Target Indicators */}
                     {isHome ? (
                         <>
                             <TargetIndicator x={90} y={150} />   {/* Cataract (Lens) */}
                             <TargetIndicator x={190} y={200} />  {/* Retinal (Lower Flap) */}
                             <TargetIndicator x={255} y={150} />  {/* AMD (Macula) */}
-                            <TargetIndicator x={200} y={60} />   {/* Color (Upper Retina) */}
+                            <TargetIndicator x={220} y={80} />   {/* Color (Upper Retina) */}
                         </>
                     ) : (
                         <>
                             {condition === 'cataract' && <TargetIndicator x={90} y={150} />}
                             {condition === 'retinal' && <TargetIndicator x={190} y={200} />}
                             {condition === 'amd' && <TargetIndicator x={255} y={150} />}
-                            {condition === 'colorblind' && <TargetIndicator x={200} y={60} />} 
+                            {condition === 'colorblind' && <TargetIndicator x={220} y={80} />} 
                         </>
                     )}
                 </svg>
@@ -311,17 +316,17 @@
             );
         };
 
-        // 4. Floating Popup 
+        // 4. Floating Popup - FULL SCREEN FIXED to solve small box issue
         const DetailPopup = ({ title, content, onClose }) => (
-            <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fade-in" onClick={onClose}>
-                <div className="bg-white rounded-lg shadow-xl max-w-md w-full overflow-hidden border border-blue-100 flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
-                    <div className="bg-blue-600 px-4 py-3 flex items-center justify-between shrink-0">
-                        <h4 className="text-white font-bold text-sm flex items-center gap-2"><InfoIcon size={16} /> {title}</h4>
-                        <button onClick={onClose} className="text-blue-100 hover:text-white"><XIcon size={16} /></button>
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+                <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 flex flex-col max-h-[80vh] transform scale-100 transition-all" onClick={(e) => e.stopPropagation()}>
+                    <div className="bg-blue-600 px-6 py-4 flex items-center justify-between shrink-0">
+                        <h4 className="text-white font-bold text-lg flex items-center gap-3"><InfoIcon size={20} /> {title}</h4>
+                        <button onClick={onClose} className="text-blue-100 hover:text-white bg-blue-700/50 hover:bg-blue-700 p-1 rounded-full transition-colors"><XIcon size={20} /></button>
                     </div>
-                    <div className="p-4 overflow-y-auto">
-                        <div className="text-sm text-slate-600 leading-relaxed">{content}</div>
-                        <div className="mt-4 text-right"><button onClick={onClose} className="text-xs font-bold text-blue-600 hover:underline">Close</button></div>
+                    <div className="p-6 overflow-y-auto">
+                        <div className="text-base text-slate-600 leading-relaxed">{content}</div>
+                        <div className="mt-6 text-right"><button onClick={onClose} className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium text-sm transition-colors">Close</button></div>
                     </div>
                 </div>
             </div>
@@ -330,19 +335,19 @@
         const POPUP_CONTENT = {
             'cataract-lens': { 
                 title: 'Pathology: The Crystalline Lens', 
-                content: <> <p className="mb-2">Normally clear and flexible.</p><p>In <strong>Cataracts</strong>, proteins clump creating cloudiness.</p><div className="mt-2 h-32"><DiagramPlaceholder id="img7" label="Clouding Process" /></div> </> 
+                content: <> <p className="mb-4">Normally clear and flexible. In <strong>Cataracts</strong>, proteins clump creating cloudiness.</p><div className="h-48 w-full"><DiagramPlaceholder id="img7" label="Clouding Process Diagram" /></div> </> 
             },
             'retinal-detached-retina': { 
                 title: 'Pathology: Retinal Detachment', 
-                content: <> <p className="mb-2">Retina peels away from blood vessels.</p><p><strong>Critical:</strong> Cells die without nutrients.</p><div className="mt-2 h-32"><DiagramPlaceholder id="img1" label="Detachment Process" /></div> </> 
+                content: <> <p className="mb-4">Retina peels away from blood vessels. <strong>Critical:</strong> Cells die without nutrients.</p><div className="h-48 w-full"><DiagramPlaceholder id="img1" label="Detachment Process Diagram" /></div> </> 
             },
             'amd-macula': { 
                 title: 'Pathology: The Macula', 
-                content: <> <p className="mb-2">Responsible for central vision.</p><p>In <strong>AMD</strong>, drusen or bleeding damages this area.</p><div className="mt-2 h-32"><DiagramPlaceholder id="img4" label="AMD Fundus" /></div> </> 
+                content: <> <p className="mb-4">Responsible for central vision. In <strong>AMD</strong>, drusen or bleeding damages this area.</p><div className="h-48 w-full"><DiagramPlaceholder id="img4" label="AMD Fundus Photo" /></div> </> 
             },
             'color_retina': { 
                 title: 'Pathology: Rod & Cone Cells', 
-                content: <> <p className="mb-2">Cone cells in the retina are responsible for color vision.</p><p><strong>Color Blindness</strong>: Deficiency in Red, Green, or Blue cones.</p><div className="mt-2 h-32"><DiagramPlaceholder id="img11" label="Visual Pathway" /></div> </> 
+                content: <> <p className="mb-4">Cone cells in the retina are responsible for color vision. <strong>Color Blindness</strong> involves a deficiency in Red, Green, or Blue cones.</p><div className="h-48 w-full"><DiagramPlaceholder id="img11" label="Visual Pathway Diagram" /></div> </> 
             }
         };
 
@@ -350,14 +355,14 @@
             const [activePopup, setActivePopup] = useState(null);
 
             return (
-                <div className="grid md:grid-cols-3 gap-6 mb-6 p-3 rounded-xl border border-slate-200 bg-slate-50 relative min-h-[400px]">
+                <div className="grid md:grid-cols-3 gap-6 mb-6 p-4 rounded-xl border border-slate-200 bg-slate-50 relative min-h-[350px]">
                 {/* Anatomy Model: 2/3 Width */}
                 <div className="md:col-span-2 relative h-full flex flex-col justify-between">
-                    <h4 className="text-xs font-bold text-slate-500 mb-2 text-center flex items-center justify-center gap-2 uppercase tracking-wide">
+                    <h4 className="text-sm font-bold text-slate-500 mb-3 text-center flex items-center justify-center gap-2 uppercase tracking-wide">
                     Anatomy Model 
                     <span className="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full flex items-center gap-1"><MousePointerClickIcon size={10} /> Click targets</span>
                     </h4>
-                    <div className="bg-white rounded-xl border border-slate-100 shadow-sm py-2 flex-1 flex items-center justify-center relative overflow-hidden w-full">
+                    <div className="bg-white rounded-xl border border-slate-100 shadow-sm py-4 flex-1 flex items-center justify-center relative overflow-hidden w-full">
                         <AnatomicalEye condition={condition} onPartClick={(part) => {
                             let key = `${condition}-${part}`;
                             if (part === 'color_retina') key = 'color_retina'; 
@@ -373,11 +378,11 @@
                     </div>
                 </div>
                 {/* Simulator: 1/3 Width */}
-                <div className="md:col-span-1 h-full flex flex-col justify-between">
-                    <h4 className="text-xs font-bold text-slate-500 mb-2 text-center uppercase tracking-wide">Patient View & Symptoms</h4>
-                    <div className="flex-1 flex flex-col gap-2">
+                <div className="md:col-span-1 flex flex-col justify-between h-full">
+                    <h4 className="text-sm font-bold text-slate-500 mb-3 text-center uppercase tracking-wide">Patient View</h4>
+                    <div className="flex-1 flex flex-col gap-3">
                         <VisionSimulator condition={condition} />
-                        <div className="bg-white p-2 rounded border border-slate-200 text-xs text-slate-600 overflow-y-auto">
+                        <div className="bg-white p-3 rounded-lg border border-slate-200 text-xs text-slate-600 overflow-y-auto shadow-sm">
                             <strong>Visual Effects:</strong>
                             {condition === 'retinal' && " Flashes of light, black spots (floaters), curtain-like shadow."}
                             {condition === 'amd' && " Wavy lines, central black spot, loss of fine detail."}
@@ -390,16 +395,16 @@
             );
         };
 
-        // --- Updated WarningSigns: TEXT + IMAGE (No Popup) ---
+        // --- WarningSigns (Text + Image, No Popup) ---
         const WarningSigns = ({ signs }) => (
             <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg shadow-sm h-full flex flex-col">
-                <h3 className="font-bold text-red-800 mb-3 flex items-center gap-2 shrink-0"><AlertTriangleIcon size={18} /> Warning Signs</h3>
+                <h3 className="font-bold text-red-800 mb-4 flex items-center gap-2 shrink-0"><AlertTriangleIcon size={20} /> Warning Signs</h3>
                 <div className="flex-1 grid grid-cols-2 gap-4 overflow-y-auto">
                     {signs.map((s, i) => (
-                        <div key={i} className="flex flex-col items-center text-center">
-                            <div className="text-sm font-bold text-red-900 mb-1">{s.label}</div>
-                            <div className="w-full">
-                                <DiagramPlaceholder id={s.imageId} label="Visual Reference" />
+                        <div key={i} className="flex flex-col items-center text-center gap-2">
+                            <div className="text-xs md:text-sm font-bold text-red-900">{s.label}</div>
+                            <div className="w-full h-32">
+                                <DiagramPlaceholder id={s.imageId} label="Reference" />
                             </div>
                         </div>
                     ))}
@@ -409,11 +414,11 @@
 
         const CausesCard = ({ causes }) => (
             <div className="bg-slate-100 p-4 rounded-lg h-full border border-slate-200 overflow-y-auto">
-                <h3 className="font-bold text-slate-700 mb-3 flex items-center gap-2"><ActivityIcon size={18} /> Causes</h3>
-                <ul className="space-y-2">
+                <h3 className="font-bold text-slate-700 mb-4 flex items-center gap-2"><ActivityIcon size={20} /> Causes</h3>
+                <ul className="space-y-3">
                     {causes.map((cause, i) => (
                         <li key={i} className="text-sm text-slate-600 flex items-start gap-2">
-                            <ChevronRightIcon size={14} className="mt-1 text-blue-400 shrink-0" />
+                            <ChevronRightIcon size={16} className="mt-0.5 text-blue-500 shrink-0" />
                             {cause}
                         </li>
                     ))}
@@ -422,16 +427,16 @@
         );
 
         const PathologyCard = ({ text, imageId, title, extraImages }) => (
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 h-full flex flex-col mb-6">
-                <h3 className="font-bold text-lg text-slate-800 mb-3 flex items-center gap-2"><MicroscopeIcon size={20} className="text-purple-500"/> Pathology Mechanism</h3>
-                <div className="flex-1 grid md:grid-cols-2 gap-6">
-                    <div>
-                        <p className="text-sm text-slate-600 mb-4 leading-relaxed">{text}</p>
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 h-full flex flex-col mb-8">
+                <h3 className="font-bold text-xl text-slate-800 mb-4 flex items-center gap-2"><MicroscopeIcon size={24} className="text-purple-500"/> Pathology Mechanism</h3>
+                <div className="flex-1 grid md:grid-cols-2 gap-8">
+                    <div className="flex flex-col justify-center">
+                        <p className="text-base text-slate-600 leading-relaxed">{text}</p>
                     </div>
-                    <div className="grid gap-2">
-                        {imageId && <DiagramPlaceholder id={imageId} label={title} />}
+                    <div className="grid gap-4">
+                        {imageId && <div className="h-48"><DiagramPlaceholder id={imageId} label={title} /></div>}
                         {extraImages && extraImages.map((img, idx) => (
-                            <DiagramPlaceholder key={idx} id={img.id} label={img.label} />
+                            <div key={idx} className="h-48"><DiagramPlaceholder id={img.id} label={img.label} /></div>
                         ))}
                     </div>
                 </div>
@@ -486,8 +491,8 @@
             const renderContent = () => {
                 // STRICT LAYOUT: Vertical Stack to prevent overlap
                 // 1. Top: SimulationPanel
-                // 2. Middle: PathologyCard
-                // 3. Bottom: Warning Signs + Causes
+                // 2. Middle: PathologyCard (Full Width)
+                // 3. Bottom: Warning Signs + Causes (Grid)
                 
                 const contentData = {
                     retinal: {
@@ -501,17 +506,17 @@
                     amd: {
                         title: "Age-related Macular Degeneration",
                         icon: GridIcon,
-                        pathologyText: "Damage to the macula (central retina) causing central vision loss. Drusen (yellow deposits) or abnormal blood vessels form beneath the retina. The diagram below shows photographs taken from a normal individual (upper photo) and a diseased individual (lower photo), respectively.",
+                        pathologyText: "Damage to the macula (central retina) causing central vision loss. Drusen (yellow deposits) or abnormal blood vessels form beneath the retina.",
                         pathologyImgs: [{id: "img3", label: "Normal Fundus"}, {id: "img4", label: "AMD Fundus"}],
-                        warningSigns: [{label: "Central vision loss"}, {label: "Straight lines become blurry (wavy)"}],
+                        warningSigns: [{label: "Central vision loss", imageId: "img5"}, {label: "Straight lines become blurry (wavy)", imageId: "img5"}],
                         causes: ["Aging (over 50)", "Smoking", "Genetics / Family History", "Obesity & High Blood Pressure", "UV Exposure"]
                     },
                     cataract: {
                         title: "Cataract",
                         icon: SunIcon,
                         pathologyText: "The Commonest cause of blindness in the world. The Crystalline lens becomes opaque (cloudiness / white), meaning light rays cannot enter the lens effectively.",
-                        pathologyImgs: [{id: "img6", label: "Eye Anatomy"}],
-                        warningSigns: [{label: "Blurry vision"}, {label: "Dimmer colour sensation"}, {label: "Hypersensitivity to strong light"}],
+                        pathologyImgs: [{id: "img6", label: "Eye Anatomy"}, {id: "img7", label: "Clouding Process"}],
+                        warningSigns: [{label: "Blurry vision", imageId: "img8"}, {label: "Dimmer colour sensation", imageId: "img8"}, {label: "Hypersensitivity to strong light", imageId: "img8"}],
                         causes: ["Aging", "Diabetes", "Excessive UV sunlight exposure", "Smoking", "Trauma", "Prolonged steroid use"]
                     },
                     colorblind: {
